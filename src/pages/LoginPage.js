@@ -1,0 +1,44 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signInUser } from "../firebaseAuth";
+
+const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInUser(email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Login failed: " + error.message);
+    }
+  };
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <h2>Login to PathNova</h2>
+      <form onSubmit={handleLogin}>
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        /><br/><br/>
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        /><br/><br/>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+};
+
+export default LoginPage;

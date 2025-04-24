@@ -1,18 +1,18 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBdSmGZtVlNASBnPRoHwdeqkhmdeWAI8_8",
-  authDomain: "pathnova-9a865.firebaseapp.com",
-  projectId: "pathnova-9a865",
-  storageBucket: "pathnova-9a865.appspot.com",
-  messagingSenderId: "199309939955",
-  appId: "1:199309939955:web:a9874da1b4c6a14c6ed386",
-  measurementId: "G-DHB7CNLRG6"
+  apiKey: "AIzaSyA2McUdINWp6XmCnOzbmfeha2rJgQLCF4A",
+  authDomain: "pathnova-b2ff0.firebaseapp.com",
+  projectId: "pathnova-b2ff0",
+  storageBucket: "pathnova-b2ff0.firebasestorage.app",
+  messagingSenderId: "543229710087",
+  appId: "1:543229710087:web:b9ba05913b03ad5ed4ffa2",
+  measurementId: "G-G201SY65YY"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+export default app;  // This exports the app as default
+export { db };
