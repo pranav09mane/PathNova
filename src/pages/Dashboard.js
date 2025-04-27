@@ -1,50 +1,86 @@
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';  // to access the current user
-import { db } from '../firebase'; 
-const Dashboard = () => {
-  const [goals, setGoals] = useState([]);
+import { useEffect, useState } from "react";
+import { db, auth } from "../firebase"; // Corrected import
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
-  // Fetch learning goals from Firestore
+function Dashboard() {
+  const [learningGoal, setLearningGoal] = useState("");
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const fetchGoals = async () => {
+    const fetchLearningGoal = async () => {
       try {
-        const user = getAuth().currentUser;  // Get the currently logged-in user
-        if (user) {
-          // Reference to the Firestore collection of this user
-          const goalsRef = collection(db, 'users', user.uid, 'learningGoals');
-          const snapshot = await getDocs(goalsRef);
-          const data = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setGoals(data);  // Store fetched goals into state
+        const user = auth.currentUser;
+        
+        if (!user) {
+          navigate("/login");
+          return;
+        }
+
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setLearningGoal(data.learningGoal || "No learning goal set.");
+        } else {
+          setError("No learning goal set for this user.");
         }
       } catch (error) {
-        console.error('Error fetching learning goals:', error);
+        console.error("Error fetching document:", error);
+        setError("Failed to fetch learning goal. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchGoals();  // Call the fetch function
-  }, []);  // Empty dependency array ensures this runs only once after mount
+    fetchLearningGoal();
+  }, [navigate]);
+
+  const handleUpdateLearningGoal = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, { learningGoal }, { merge: true });
+
+      alert("Learning goal updated successfully!");
+    } catch (error) {
+      console.error("Error updating learning goal:", error);
+      setError("Failed to update learning goal. Please try again later.");
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Welcome to PathNova 🚀</h1>
-      <h2 className="mt-6 font-semibold">Your Learning Goals</h2>
-      {goals.length === 0 ? (
-        <p>No goals added yet.</p>
-      ) : (
-        <ul className="list-disc pl-5 mt-2">
-          {goals.map(goal => (
-            <li key={goal.id}>
-              <strong>{goal.goal}</strong> — Deadline: {goal.deadline}
-            </li>
-          ))}
-        </ul>
-      )}
+    <div>
+      <h2>Welcome to PathNova 🚀</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <h3>Your Learning Goal: {learningGoal}</h3>
+
+      <div style={{ marginTop: "20px" }}>
+        <input
+          type="text"
+          placeholder="Update your learning goal"
+          value={learningGoal}
+          onChange={(e) => setLearningGoal(e.target.value)}
+          style={{ padding: "8px", width: "300px", marginRight: "10px" }}
+        />
+        <button onClick={handleUpdateLearningGoal} style={{ padding: "8px 16px" }}>
+          Update Goal
+        </button>
+      </div>
     </div>
   );
-};
+}
 
 export default Dashboard;

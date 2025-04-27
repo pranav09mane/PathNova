@@ -1,26 +1,8 @@
-// src/firebaseAuth.js
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import app from './firebase';
+// Import necessary functions for authentication
+import { getAuth } from "firebase/auth";
+import { app } from "./firebase"; // Import the initialized app from `firebase.js`
 
+// Initialize Firebase Authentication
+const auth = getAuth(app); // Use the app initialized in `firebase.js`
 
-const auth = getAuth(app);
-
-// Create user
-export const createUser = async (email, password) => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log("User created:", userCredential.user);
-  } catch (error) {
-    console.error("Error creating user:", error.message);
-  }
-};
-
-// Sign in user
-export const signInUser = async (email, password) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log("User signed in:", userCredential.user);
-  } catch (error) {
-    console.error("Error signing in:", error.message);
-  }
-};
+export { auth }; // Export `auth` for use in other files
